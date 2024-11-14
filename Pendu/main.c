@@ -2,6 +2,6 @@
 #include "pendu.h"
 
 int main() {
-    selectionnerDifficulteEtTheme();
+    chooseDifficultyAndCategory();
     return 0;
 }

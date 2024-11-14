@@ -4,178 +4,138 @@
 #include <string.h>
 #include "pendu.h"
 
+// Word definitions
+const char* easyAnimals[] = {"cat", "dog", "rat"};
+const char* easyObjects[] = {"key", "book", "lamp"};
+const char* easyJobs[] = {"firefighter", "cook", "mason"};
 
-#define NB_MOTS_FACILES_ANIMAUX 3
-#define NB_MOTS_FACILES_OBJETS 3
-#define NB_MOTS_FACILES_METIERS 3
+const char* mediumAnimals[] = {"dolphin", "horse", "pigeon"};
+const char* mediumObjects[] = {"tablet", "computer", "sofa"};
+const char* mediumJobs[] = {"dentist", "plumber", "electrician"};
 
-#define NB_MOTS_MOYENS_ANIMAUX 3
-#define NB_MOTS_MOYENS_OBJETS 3
-#define NB_MOTS_MOYENS_METIERS 3
-
-#define NB_MOTS_DIFFICILES_ANIMAUX 3
-#define NB_MOTS_DIFFICILES_OBJETS 3
-#define NB_MOTS_DIFFICILES_METIERS 3
-
-
-const char* motsFacilesAnimaux[] = {"chat", "chien", "rat"};
-const char* motsFacilesObjets[] = {"clé", "livre", "lampe"};
-const char* motsFacilesMetiers[] = {"pompier", "cuistot", "maçon"};
+const char* hardAnimals[] = {"hippopotamus", "chimpanzee", "platypus"};
+const char* hardObjects[] = {"radiator", "refrigerator", "vacuum"};
+const char* hardJobs[] = {"astrophysicist", "bioengineer", "ethnologist"};
 
 
-const char* motsMoyensAnimaux[] = {"dauphin", "cheval", "pigeon"};
-const char* motsMoyensObjets[] = {"tablette", "ordinateur", "canapé"};
-const char* motsMoyensMetiers[] = {"dentiste", "plombier", "électricien"};
-
-
-const char* motsDifficilesAnimaux[] = {"hippopotame", "chimpanzé", "ornithorynque"};
-const char* motsDifficilesObjets[] = {"radiateur", "réfrigérateur", "aspirateur"};
-const char* motsDifficilesMetiers[] = {"astrophysicien", "bioingénieur", "ethnologue"};
-
-#define NB_MOTS_FACILES 3
-#define NB_MOTS_MOYENS 3
-#define NB_MOTS_DIFFICILES 3
-#define NB_MOTS_ANIMAUX 3
-#define NB_MOTS_OBJETS 3
-#define NB_MOTS_METIERS 3
-
-void selectionnerDifficulteEtTheme() {
-    int choixDifficulte, choixTheme;
+void chooseDifficultyAndCategory() {
+    int difficultyChoice, categoryChoice;
     
-    printf("Choisissez un niveau de difficulté:\n");
-    printf("1. Facile\n2. Moyen\n3. Difficile\nVotre choix: ");
-    scanf("%d", &choixDifficulte);
+    printf("Select a difficulty level:\n");
+    printf("1. Easy\n2. Medium\n3. Hard\nYour choice: ");
+    scanf("%d", &difficultyChoice);
 
-    NiveauDifficulte niveau;
-    switch (choixDifficulte) {
-        case 1: niveau = FACILE; break;
-        case 2: niveau = MOYEN; break;
-        case 3: niveau = DIFFICILE; break;
-        default: niveau = FACILE;
+    DifficultyLevel difficulty;
+    switch (difficultyChoice) {
+        case 1: difficulty = EASY; break;
+        case 2: difficulty = MEDIUM; break;
+        case 3: difficulty = HARD; break;
+        default: difficulty = EASY;
     }
 
-    printf("Choisissez un thème:\n");
-    printf("1. Animaux\n2. Objets\n3. Métiers\nVotre choix: ");
-    scanf("%d", &choixTheme);
+    printf("Select a category:\n");
+    printf("1. Animals\n2. Objects\n3. Jobs\nYour choice: ");
+    scanf("%d", &categoryChoice);
 
-    Theme theme;
-    switch (choixTheme) {
-        case 1: theme = ANIMAUX; break;
-        case 2: theme = OBJETS; break;
-        case 3: theme = METIERS; break;
-        default: theme = ANIMAUX;
+    Category category;
+    switch (categoryChoice) {
+        case 1: category = ANIMALS; break;
+        case 2: category = OBJECTS; break;
+        case 3: category = JOBS; break;
+        default: category = ANIMALS;
     }
 
-    demarrerJeu(niveau, theme);
+    startGame(difficulty, category);
 }
 
-void demarrerJeu(NiveauDifficulte niveau, Theme theme) {
-    printf("Bienvenue dans le jeu de Pendu !\n");
+void startGame(DifficultyLevel difficulty, Category category) {
+    printf("Welcome to the Hangman game!\n");
 
-    char* motSecret = choisirMotSecret(niveau, theme);
-    int lenMot = strlen(motSecret);
-    int* lettresDevinees = (int*)malloc(lenMot * sizeof(int));
-    if (lettresDevinees == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire.\n");
+    char* secretWord = pickSecretWord(difficulty, category);
+    int wordLength = strlen(secretWord);
+    int* guessedLetters = (int*)malloc(wordLength * sizeof(int));
+    if (guessedLetters == NULL) {
+        fprintf(stderr, "Memory allocation error.\n");
         exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < lenMot; i++) {
-        lettresDevinees[i] = 0;
+    for (int i = 0; i < wordLength; i++) {
+        guessedLetters[i] = 0;
     }
 
-    int essaisRestants = MAX_ESSAIS;
-    int finDuJeu = 0;
-    char lettre;
+    int attemptsLeft = MAX_ATTEMPTS;
+    int gameEnd = 0;
+    char guessedLetter;
 
-    
-    char nomJoueur[50];
-    printf("Entrez votre nom : ");
-    scanf("%s", nomJoueur);
+    char playerName[50];
+    printf("Enter your name: ");
+    scanf("%s", playerName);
 
-    while (essaisRestants > 0 && !finDuJeu) {
-        afficherMotCache(motSecret, lettresDevinees);
-        printf("\nEssais restants : %d\n", essaisRestants);
-        afficherPendu(essaisRestants);
+    while (attemptsLeft > 0 && !gameEnd) {
+        displayHiddenWord(secretWord, guessedLetters);
+        printf("\nAttempts remaining: %d\n", attemptsLeft);
+        displayHangman(attemptsLeft);
 
-        printf("Entrez une lettre : ");
-        scanf(" %c", &lettre);
+        printf("Enter a letter: ");
+        scanf(" %c", &guessedLetter);
 
-        int nombreOccurrences = verifierLettre(motSecret, lettre, lettresDevinees);
-        if (nombreOccurrences == 0) {
-            essaisRestants--;
+        int occurrences = checkLetter(secretWord, guessedLetter, guessedLetters);
+        if (occurrences == 0) {
+            attemptsLeft--;
         }
 
-        
-        finDuJeu = 1;
-        for (int i = 0; i < lenMot; i++) {
-            if (lettresDevinees[i] == 0) {
-                finDuJeu = 0;
+        gameEnd = 1;
+        for (int i = 0; i < wordLength; i++) {
+            if (guessedLetters[i] == 0) {
+                gameEnd = 0;
                 break;
             }
         }
     }
 
-    if (finDuJeu) {
-        printf("Félicitations ! Vous avez trouvé le mot : %s\n", motSecret);
-        sauvegarderScore(nomJoueur, essaisRestants);
+    if (gameEnd) {
+        printf("Congratulations! You've guessed the word: %s\n", secretWord);
+        saveScore(playerName, attemptsLeft);
     } else {
-        printf("Dommage ! Vous avez perdu. Le mot était : %s\n", motSecret);
+        printf("Sorry! You lost. The word was: %s\n", secretWord);
     }
 
-    free(lettresDevinees);
+    free(guessedLetters);
 }
 
-char* choisirMotSecret(NiveauDifficulte niveau, Theme theme) {
-    srand(time(NULL)); 
-    int index;
-
-    switch (niveau) {
-        case FACILE:
-            switch (theme) {
-                case ANIMAUX:
-                    return (char*)motsFacilesAnimaux[rand() % NB_MOTS_FACILES_ANIMAUX];
-                case OBJETS:
-                    return (char*)motsFacilesObjets[rand() % NB_MOTS_FACILES_OBJETS];
-                case METIERS:
-                    return (char*)motsFacilesMetiers[rand() % NB_MOTS_FACILES_METIERS];
-                default:
-                    return (char*)motsFacilesAnimaux[0]; 
+char* pickSecretWord(DifficultyLevel difficulty, Category category) {
+    srand(time(NULL));
+    switch (difficulty) {
+        case EASY:
+            switch (category) {
+                case ANIMALS: return (char*)easyAnimals[rand() % EASY_WORDS_ANIMALS];
+                case OBJECTS: return (char*)easyObjects[rand() % EASY_WORDS_OBJECTS];
+                case JOBS: return (char*)easyJobs[rand() % EASY_WORDS_JOBS];
+                default: return (char*)easyAnimals[0];
             }
-
-        case MOYEN:
-            switch (theme) {
-                case ANIMAUX:
-                    return (char*)motsMoyensAnimaux[rand() % NB_MOTS_MOYENS_ANIMAUX];
-                case OBJETS:
-                    return (char*)motsMoyensObjets[rand() % NB_MOTS_MOYENS_OBJETS];
-                case METIERS:
-                    return (char*)motsMoyensMetiers[rand() % NB_MOTS_MOYENS_METIERS];
-                default:
-                    return (char*)motsMoyensAnimaux[0]; 
+        case MEDIUM:
+            switch (category) {
+                case ANIMALS: return (char*)mediumAnimals[rand() % MEDIUM_WORDS_ANIMALS];
+                case OBJECTS: return (char*)mediumObjects[rand() % MEDIUM_WORDS_OBJECTS];
+                case JOBS: return (char*)mediumJobs[rand() % MEDIUM_WORDS_JOBS];
+                default: return (char*)mediumAnimals[0];
             }
-
-        case DIFFICILE:
-            switch (theme) {
-                case ANIMAUX:
-                    return (char*)motsDifficilesAnimaux[rand() % NB_MOTS_DIFFICILES_ANIMAUX];
-                case OBJETS:
-                    return (char*)motsDifficilesObjets[rand() % NB_MOTS_DIFFICILES_OBJETS];
-                case METIERS:
-                    return (char*)motsDifficilesMetiers[rand() % NB_MOTS_DIFFICILES_METIERS];
-                default:
-                    return (char*)motsDifficilesAnimaux[0]; 
+        case HARD:
+            switch (category) {
+                case ANIMALS: return (char*)hardAnimals[rand() % HARD_WORDS_ANIMALS];
+                case OBJECTS: return (char*)hardObjects[rand() % HARD_WORDS_OBJECTS];
+                case JOBS: return (char*)hardJobs[rand() % HARD_WORDS_JOBS];
+                default: return (char*)hardAnimals[0];
             }
-
         default:
-            return (char*)motsFacilesAnimaux[0]; 
+            return (char*)easyAnimals[0];
     }
 }
 
-void afficherMotCache(char* mot, int* lettresDevinees) {
-    for (int i = 0; i < strlen(mot); i++) {
-        if (lettresDevinees[i]) {
-            printf("%c ", mot[i]);
+void displayHiddenWord(char* word, int* guessedLetters) {
+    for (int i = 0; i < strlen(word); i++) {
+        if (guessedLetters[i]) {
+            printf("%c ", word[i]);
         } else {
             printf("_ ");
         }
@@ -183,47 +143,33 @@ void afficherMotCache(char* mot, int* lettresDevinees) {
     printf("\n");
 }
 
-int verifierLettre(char* mot, char lettre, int* lettresDevinees) {
-    int nombreOccurrences = 0;
-    for (int i = 0; i < strlen(mot); i++) {
-        if (mot[i] == lettre && !lettresDevinees[i]) {
-            lettresDevinees[i] = 1;
-            nombreOccurrences++;
+int checkLetter(char* word, char letter, int* guessedLetters) {
+    int occurrences = 0;
+    for (int i = 0; i < strlen(word); i++) {
+        if (word[i] == letter && !guessedLetters[i]) {
+            guessedLetters[i] = 1;
+            occurrences++;
         }
     }
-    return nombreOccurrences;
+    return occurrences;
 }
 
-void afficherPendu(int essaisRestants) {
-    switch (essaisRestants) {
-        case 6:
-            printf("\n\n\n\n\n");
-            break;
-        case 5:
-            printf("  O\n\n\n\n");
-            break;
-        case 4:
-            printf("  O\n  |\n\n\n");
-            break;
-        case 3:
-            printf("  O\n /|\n\n\n");
-            break;
-        case 2:
-            printf("  O\n /|\\\n\n\n");
-            break;
-        case 1:
-            printf("  O\n /|\\\n /\n");
-            break;
-        case 0:
-            printf("  O\n /|\\\n / \\\n");
-            break;
+void displayHangman(int attemptsLeft) {
+    switch (attemptsLeft) {
+        case 6: printf("\n\n\n\n\n"); break;
+        case 5: printf("  O\n\n\n\n"); break;
+        case 4: printf("  O\n  |\n\n\n"); break;
+        case 3: printf("  O\n /|\n\n\n"); break;
+        case 2: printf("  O\n /|\\\n\n\n"); break;
+        case 1: printf("  O\n /|\\\n /\n"); break;
+        case 0: printf("  O\n /|\\\n / \\\n"); break;
     }
 }
 
-void sauvegarderScore(const char* joueur, int score) {
-    FILE* fichier = fopen("scores.txt", "a");
-    if (fichier != NULL) {
-        fprintf(fichier, "Joueur: %s, Score: %d\n", joueur, score);
-        fclose(fichier);
+void saveScore(const char* playerName, int score) {
+    FILE* file = fopen("scores.txt", "a");
+    if (file != NULL) {
+        fprintf(file, "Player: %s, Score: %d\n", playerName, score);
+        fclose(file);
     }
 }

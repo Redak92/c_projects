@@ -1,19 +1,43 @@
-#ifndef PENDU_H
-#define PENDU_H
+#ifndef HANGMAN_H
+#define HANGMAN_H
 
-#define MAX_ESSAIS 6  // Maximum number of attempts
+#define MAX_ATTEMPTS 6
 
-// Enumerations for difficulty levels and themes
-typedef enum { FACILE, MOYEN, DIFFICILE } NiveauDifficulte;
-typedef enum { ANIMAUX, OBJETS, METIERS } Theme;
+#define EASY_WORDS_ANIMALS 3
+#define EASY_WORDS_OBJECTS 3
+#define EASY_WORDS_JOBS 3
 
-// Prototypes of the functions
-void demarrerJeu(NiveauDifficulte niveau, Theme theme);
-char* choisirMotSecret(NiveauDifficulte niveau, Theme theme);
-void afficherMotCache(char* mot, int* lettresDevinees);
-int verifierLettre(char* mot, char lettre, int* lettresDevinees);
-void afficherPendu(int essaisRestants);
-void selectionnerDifficulteEtTheme();
-void sauvegarderScore(const char* joueur, int score);
+#define MEDIUM_WORDS_ANIMALS 3
+#define MEDIUM_WORDS_OBJECTS 3
+#define MEDIUM_WORDS_JOBS 3
 
-#endif // PENDU_H
+#define HARD_WORDS_ANIMALS 3
+#define HARD_WORDS_OBJECTS 3
+#define HARD_WORDS_JOBS 3
+
+// Définition des niveaux de difficulté
+typedef enum {
+    EASY,
+    MEDIUM,
+    HARD
+} DifficultyLevel;
+
+// Définition des catégories
+typedef enum {
+    ANIMALS,
+    OBJECTS,
+    JOBS
+} Category;
+
+// Fonctions principales
+void chooseDifficultyAndCategory();
+void startGame(DifficultyLevel difficulty, Category category);
+char* pickSecretWord(DifficultyLevel difficulty, Category category);
+
+// Fonctions utilitaires
+void displayHiddenWord(char* word, int* guessedLetters);
+int checkLetter(char* word, char letter, int* guessedLetters);
+void displayHangman(int attemptsLeft);
+void saveScore(const char* playerName, int score);
+
+#endif // HANGMAN_H
